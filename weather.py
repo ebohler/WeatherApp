@@ -10,6 +10,14 @@ from urllib.request import urlopen
 from time import sleep
 import json
 
+class Period:
+    def __init__(self, number, name, startTime, temperature, shortForecast):
+        self.number = number
+        self.name = name
+        self.startTime = startTime
+        self.temperature = temperature
+        self.shortForecast = shortForecast
+
 def main():
     print("Weather App Prototype:\nEnter the latitude and longitude of a place in the US to receive the forecast")
     latitude = input("Latitude: ")
@@ -30,10 +38,20 @@ def main():
         try:
             gridpoints_response = urlopen(gridpoints_url)
         except:
-            print("Error: connection failed to " + points_url + "\nRetrying...")
+            print("Error: connection failed to " + gridpoints_url + "\nRetrying...")
             sleep(2)
     gridpoints_json = json.loads(gridpoints_response.read())
     #print(gridpoints_json)
+
+    periods = []
+    
+    for p in gridpoints_json["properties"]["periods"]:
+        period = Period(p["number"],p["name"],p["startTime"],p["temperature"],p["shortForecast"])
+        periods.append(period)
+
+    #for i in periods:
+    #    print(i.name + i.startTime + str(i.temperature) + i.shortForecast)
+        
 
 if __name__ == "__main__":
     main()
