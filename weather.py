@@ -51,7 +51,6 @@ def main():
 
     #for i in periods:
     #    print(i.name + i.startTime + str(i.temperature) + i.shortForecast)
-        
 
 if __name__ == "__main__":
     main()
