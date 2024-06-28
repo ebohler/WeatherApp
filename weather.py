@@ -7,6 +7,7 @@
 # # # # # # # # # # # # # # # # # # # # # #
 
 from urllib.request import urlopen
+from time import sleep
 import json
 
 def main():
@@ -15,14 +16,24 @@ def main():
     longitude = input("Longitude: ")
 
     points_url = "https://api.weather.gov/points/" + latitude + "," + longitude
-    points_response = urlopen(points_url)
+    for i in range (3):
+        try:
+            points_response = urlopen(points_url)
+        except:
+            print ("Error: connection failed to " + points_url + "\nRetrying...")
+            sleep(2)
     points_json = json.loads(points_response.read())
+    #print(points_json)
 
     gridpoints_url = points_json["properties"]["forecast"]
-    gridpoints_response = urlopen(gridpoints_url)
+    for i in range (3):
+        try:
+            gridpoints_response = urlopen(gridpoints_url)
+        except:
+            print("Error: connection failed to " + points_url + "\nRetrying...")
+            sleep(2)
     gridpoints_json = json.loads(gridpoints_response.read())
-    
-    print(gridpoints_json)
+    #print(gridpoints_json)
 
 if __name__ == "__main__":
     main()
