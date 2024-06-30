@@ -2,6 +2,7 @@
 ## Automatic formatted 7-day forecast via the Weather.gov API
 
 ![Forecast Screenshot](https://raw.githubusercontent.com/ebohler/WeatherApp/main/forecast.png)
+[Example HTML Table](https://github.com/ebohler/WeatherApp/blob/main/39.7456%2C-97.0892.html)
 
 - Takes a US longitude and latitude as input
 - Downloads and parses JSON from the weather.gov API for those coordinates
