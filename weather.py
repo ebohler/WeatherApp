@@ -6,12 +6,11 @@
 # for the given latitude and longitude    #
 # # # # # # # # # # # # # # # # # # # # # #
 # TODO:
-# Urlopen needs user agent to work
-# Program should end after 3 retries
-# Write period data to text file
-# Convert date and time to readable text
-# Dynamically create HTML file and decorate w/ CSS
+# Program should exit after 3 retries
+# Convert datetime to readable format
+# Dynamically create HTML file from .txt and decorate w/ CSS
 # After prototype is fully working, put everything in classes and functions
+# -
 # Clean up code and add comments where needed
 # Create YAML file of conda env
 # Write detailed README for github
@@ -66,10 +65,8 @@ def main():
 
     textfile = open(coordinates + ".txt", "w")
     for p in periods:
-        textfile.write(p.name + "\n" + p.startTime + "\n" + str(p.temperature) + "\u00B0F \n" + p.shortForecast + "\n\n")
+        textfile.write(p.name + "\n" + p.startTime + "\n" + str(p.temperature) + "\u00B0F\n" + p.shortForecast + "\n\n")
     textfile.close()
-
-
 
 if __name__ == "__main__":
     main()
