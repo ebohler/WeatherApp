@@ -21,8 +21,16 @@ Python 3.10.9 is the only requirement. This program only uses the standard libra
    ```
    cd WeatherApp
    ```
-4. Run weather.py and enter your desired longitude and latitude
+4. Run weather.py
    ```
    python weather.py
    ```
-6. Open the created HTML file in your browser of choice
+5. Enter your desired longitude and latitude
+   ```
+   Longitude: 39.3813
+   Latitude: -97.1211
+   ```
+7. Open the created HTML file in your browser of choice
+   ```
+   39.3813,-97.1211.html
+   ```
