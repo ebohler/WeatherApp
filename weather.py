@@ -19,7 +19,7 @@
 from urllib.request import urlopen, Request
 from datetime import datetime
 from time import sleep
-import json
+import json, sys
 
 class WeatherApp:
     pass
@@ -27,7 +27,7 @@ class WeatherApp:
 class Forecast:
     pass
 
-class Period(Forecast):
+class Period:
     def __init__(self, number, name, startTime, temperature, shortForecast):
         self.number = number
         self.name = name
@@ -35,10 +35,31 @@ class Period(Forecast):
         self.temperature = temperature
         self.shortForecast = shortForecast
 
-def format_date(input_date):
-    dt = datetime.fromisoformat(input_date)
-    formatted_date = dt.strftime('%B %d, %Y\n%I:%M %p')
-    return formatted_date
+class TextFile:
+    def __init__(self, filename):
+        self.filename = filename + ".txt"
+
+    # Adds .txt extension to given string
+    def change_filename(self, name):
+        self.filename = name + ".txt"
+
+    # Uses datetime module to reformat from JSON's ISO format to regular date format i.e. June 30, 2024 06:00 PM
+    def format_date(self, input_date):
+        dt = datetime.fromisoformat(input_date)
+        formatted_date = dt.strftime('%B %d, %Y\n%I:%M %p')
+        return formatted_date
+    
+    # Creates/overwrites file of self.filename, adds degree symbol to temp and calls format_date to convert ISO date into a more readable format, then closes file
+    def write_file(self, periods):
+        with open(self.filename, "w") as textfile:
+            for p in periods:
+                formatted_temp = str(p.temperature) + "\u00B0F\n"
+                formatted_date = self.format_date(p.startTime)
+                textfile.write(p.name + "\n" + formatted_date + "\n" + formatted_temp + p.shortForecast + "\n\n")
+
+class HTMLTable:
+    pass
+
 
 def main():
     print("Weather App Prototype:\nEnter the latitude and longitude of a place in the US to receive the forecast")
@@ -52,10 +73,11 @@ def main():
         try:
             points_response = urlopen(Request(points_url, headers={'User-Agent': 'Mozilla'}))
         except:
-            print ("Error: connection failed to " + points_url + "\nRetrying...")
+            print ("Error: could not connect to " + points_url)
+            if i == 2:
+                sys.exit("Connection failed after 3 retries. Ending process...")
             sleep(2)
     points_json = json.loads(points_response.read())
-    #print(points_json)
 
 
     gridpoints_url = points_json["properties"]["forecast"]
@@ -63,7 +85,9 @@ def main():
         try:
             gridpoints_response = urlopen(Request(gridpoints_url, headers={'User-Agent': 'Mozilla'}))
         except:
-            print("Error: connection failed to " + gridpoints_url + "\nRetrying...")
+            print("Error: could not connect to " + gridpoints_url + "\n")
+            if i == 2:
+                sys.exit("Connection failed after 3 retries. Ending process...")
             sleep(2)
     gridpoints_json = json.loads(gridpoints_response.read())
 
@@ -74,12 +98,8 @@ def main():
         periods.append(period)
 
 
-    textfile = open(coordinates + ".txt", "w")
-    for p in periods:
-        formatted_temp = str(p.temperature) + "\u00B0F\n"
-        formatted_date = format_date(p.startTime)
-        textfile.write(p.name + "\n" + formatted_date + "\n" + formatted_temp + p.shortForecast + "\n\n")
-    textfile.close()
+    text = TextFile(coordinates)
+    text.write_file(periods)
 
 
     with open(coordinates + ".txt", "r") as file:
