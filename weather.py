@@ -9,7 +9,7 @@
 from urllib.request import urlopen, Request
 from datetime import datetime
 from time import sleep
-import json, sys
+import json, sys, textwrap
 
 class WeatherApp:
     # Take coordinates as input and combine them into a comma separated string
@@ -105,8 +105,7 @@ class HTMLTable:
 
         with open(self.filename, "w") as file:
             # CSS styling info and start of HTML file
-            file.write(
-                """
+            file.write(textwrap.dedent("""\
                 <html>
                 <head>
                 <title>Forecast</title>
@@ -162,8 +161,8 @@ class HTMLTable:
                 </head>
                 <body>
                 <table>
-                <tr>\n
-                """
+                <tr>\n"""
+            )
             )
 
             # Ends table row if stripped string is empty, otherwise adds table data of the line
