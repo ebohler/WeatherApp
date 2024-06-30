@@ -6,12 +6,8 @@
 # for the given latitude and longitude    #
 # # # # # # # # # # # # # # # # # # # # # #
 # TODO:
-# Program should exit after 3 retries
-# Convert datetime to readable format
-# Dynamically create HTML file from .txt and decorate w/ CSS
-# After prototype is fully working, put everything in classes and functions
+# Put everything in classes and functions
 # -
-# Clean up code and add comments where needed
 # Create YAML file of conda env
 # Write detailed README for github
 # Submit github repo link to moodle
@@ -58,14 +54,98 @@ class TextFile:
                 textfile.write(p.name + "\n" + formatted_date + "\n" + formatted_temp + p.shortForecast + "\n\n")
 
 class HTMLTable:
-    pass
+    def __init__(self, filename):
+        self.filename = filename + ".html"
 
+    # Adds .html extension to given string
+    def change_filename(self, name):
+        self.filename = name + ".html"
 
-def main():
-    print("Weather App Prototype:\nEnter the latitude and longitude of a place in the US to receive the forecast")
+    def create_table(self, textfilename):
+        with open(textfilename + ".txt", "r") as file:
+            lines = file.read().splitlines()
+
+        with open(self.filename, "w") as file:
+            file.write(
+                """
+                <html>
+                <head>
+                <title>Forecast</title>
+                <style>
+                    body {
+                        background: rgb(34,143,195);
+                        background: linear-gradient(0deg, rgba(34,143,195,1) 0%, rgba(240,255,255,1) 100%); 
+                        background-repeat: no-repeat;
+                        background-attachment: fixed;
+                        padding: 12px;  
+                    }    
+                    table {
+                        font-family: 'Helvetica', 'Arial', sans-serif;
+                        margin: 50px auto;
+                        overflow: hidden;
+                        border: 1px solid #ddd;
+                        border-collapse: separate;
+                        border-left: 0;
+                        border-radius: 4px;
+                        border-spacing: 0px;
+                    }
+                    thead {
+                        display: table-header-group;
+                        vertical-align: middle;
+                        border-color: inherit;
+                        border-collapse: separate;
+                    }
+                    tr {
+                        display: table-row;
+                        vertical-align: inherit;
+                        border-color: inherit;
+                    }
+                    td {
+                        border-top: 1px solid #ddd;   
+                        padding: 24px 12px 24px 12px; 
+                        text-align: center;
+                        vertical-align: top;
+                        border-left: 1px solid #ddd;  
+                    }
+                    thead:first-child tr:first-child th:first-child, tbody:first-child tr:first-child td:first-child {
+                        border-radius: 4px 0 0 0;
+                    }
+                    thead:last-child tr:last-child th:first-child, tbody:last-child tr:last-child td:first-child {
+                        border-radius: 0 0 0 4px;
+                    }
+                    tr:nth-child(even) {
+                        background-color: #f9f9f9;
+                    }
+                    tr:nth-child(odd) {
+                        background-color: #f2f2f2;
+                    }
+                </style>
+                </head>
+                <body>
+                <table>
+                <tr>\n
+                """
+            )
+
+            for line in lines:
+                if line.strip() == "":
+                    file.write("</tr>\n<tr>\n")
+                else:
+                    file.write(f"<td>{line.strip()}</td>\n")
+
+            file.write("</tr>\n</table>\n</body>\n</html>")
+
+# FIXME: Put inside class
+def coords_input():
+    print("Enter the latitude and longitude of a place in the US to receive the forecast")
     latitude = input("Latitude: ")
     longitude = input("Longitude: ")
-    coordinates = latitude + "," + longitude
+    coords = latitude + "," + longitude
+    return coords
+
+def main():
+    print("Weather App by ebohler")
+    coordinates = coords_input()
 
 
     points_url = "https://api.weather.gov/points/" + coordinates
@@ -101,80 +181,8 @@ def main():
     text = TextFile(coordinates)
     text.write_file(periods)
 
-
-    with open(coordinates + ".txt", "r") as file:
-        lines = file.read().splitlines()
-
-    html_content = """
-    <html>
-    <head>
-    <title>Forecast</title>
-    <style>
-        body {
-            background: rgb(34,143,195);
-            background: linear-gradient(0deg, rgba(34,143,195,1) 0%, rgba(240,255,255,1) 100%); 
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-            padding: 12px;  
-        }    
-        table {
-            font-family: 'Helvetica', 'Arial', sans-serif;
-            margin: 50px auto;
-            overflow: hidden;
-            border: 1px solid #ddd;
-            border-collapse: separate;
-            border-left: 0;
-            border-radius: 4px;
-            border-spacing: 0px;
-        }
-        thead {
-            display: table-header-group;
-            vertical-align: middle;
-            border-color: inherit;
-            border-collapse: separate;
-        }
-        tr {
-            display: table-row;
-            vertical-align: inherit;
-            border-color: inherit;
-        }
-        td {
-            border-top: 1px solid #ddd;   
-            padding: 24px 12px 24px 12px; 
-            text-align: center;
-            vertical-align: top;
-            border-left: 1px solid #ddd;  
-        }
-        thead:first-child tr:first-child th:first-child, tbody:first-child tr:first-child td:first-child {
-            border-radius: 4px 0 0 0;
-        }
-        thead:last-child tr:last-child th:first-child, tbody:last-child tr:last-child td:first-child {
-            border-radius: 0 0 0 4px;
-        }
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-        tr:nth-child(odd) {
-            background-color: #f2f2f2;
-        }
-    </style>
-    </head>
-    <body>
-    <table>
-    """
-
-    html_content += "<tr>\n"
-    for line in lines:
-        if line.strip() == "":
-            html_content += "</tr>\n<tr>\n"
-        else:
-            html_content += f"<td>{line.strip()}</td>\n"
-    html_content += "</tr>\n"
-
-    html_content += "</table>\n</body>\n</html>"
-
-    with open(coordinates + ".html", "w") as file:
-        file.write(html_content)
-
+    html = HTMLTable(coordinates)
+    html.create_table(coordinates)
+    
 if __name__ == "__main__":
     main()
