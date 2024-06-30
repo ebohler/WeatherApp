@@ -12,6 +12,7 @@ from time import sleep
 import json, sys
 
 class WeatherApp:
+    # Take coordinates as input and combine them into a comma separated string
     def coords_input(self):
         print("Enter the latitude and longitude of a place in the US to receive the forecast")
         latitude = input("Latitude: ")
@@ -23,6 +24,7 @@ class JSONParser:
     def __init__(self, coordinates):
         self.coordinates = coordinates
 
+    # Appends coordinates to weather.gov link, tries to open that URL 3 times. Saves and returns JSON library if it doesn't fail
     def get_points_json(self):
         points_url = "https://api.weather.gov/points/" + self.coordinates
         for i in range (3):
@@ -36,6 +38,7 @@ class JSONParser:
         points_json = json.loads(points_response.read())
         return points_json
     
+    # Extracts URL from first JSON, tries 3 times to connect and returns forecast JSON if it doesn't fail
     def get_gridpoints_json(self, points_json):
         gridpoints_url = points_json["properties"]["forecast"]
         for i in range (3):
@@ -49,6 +52,7 @@ class JSONParser:
         gridpoints_json = json.loads(gridpoints_response.read())
         return gridpoints_json
     
+    # Creates period objects and adds them to list to make text file creation easier
     def create_periods_list(gridpoints_json):
         periods = []
         for p in gridpoints_json["properties"]["periods"]:
@@ -56,6 +60,7 @@ class JSONParser:
             periods.append(period)
         return periods
 
+# Needed info from gridpoints JSON
 class Period:
     def __init__(self, number, name, startTime, temperature, shortForecast):
         self.number = number
@@ -99,6 +104,7 @@ class HTMLTable:
             lines = file.read().splitlines()
 
         with open(self.filename, "w") as file:
+            # CSS styling info and start of HTML file
             file.write(
                 """
                 <html>
@@ -160,6 +166,7 @@ class HTMLTable:
                 """
             )
 
+            # Ends table row if stripped string is empty, otherwise adds table data of the line
             for line in lines:
                 if line.strip() == "":
                     file.write("</tr>\n<tr>\n")
@@ -171,16 +178,20 @@ class HTMLTable:
 def main():
     print("Weather App by ebohler")
     
+    # Takes coordinate input
     weather = WeatherApp()
     coordinates = weather.coords_input()
 
+    # Runs through the JSON chain to get a list of the forecast periods
     json = JSONParser(coordinates)
     gridpoints_json = json.get_gridpoints_json(json.get_points_json())
     periods = JSONParser.create_periods_list(gridpoints_json)
 
+    # Creates text file to be used by HTML table creator
     text = TextFile(coordinates)
     text.write_file(periods)
 
+    # Creates HTML table using the text file
     html = HTMLTable(coordinates)
     html.create_table(coordinates)
     
