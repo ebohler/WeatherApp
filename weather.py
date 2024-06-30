@@ -17,6 +17,7 @@
 # Submit github repo link to moodle
 
 from urllib.request import urlopen, Request
+from datetime import datetime
 from time import sleep
 import json
 
@@ -28,11 +29,17 @@ class Period:
         self.temperature = temperature
         self.shortForecast = shortForecast
 
+def format_date(input_date):
+    dt = datetime.fromisoformat(input_date)
+    formatted_date = dt.strftime('%B %d, %Y %I:%M %p')
+    return formatted_date
+
 def main():
     print("Weather App Prototype:\nEnter the latitude and longitude of a place in the US to receive the forecast")
     latitude = input("Latitude: ")
     longitude = input("Longitude: ")
     coordinates = latitude + "," + longitude
+
 
     points_url = "https://api.weather.gov/points/" + coordinates
     for i in range (3):
@@ -44,6 +51,7 @@ def main():
     points_json = json.loads(points_response.read())
     #print(points_json)
 
+
     gridpoints_url = points_json["properties"]["forecast"]
     for i in range (3):
         try:
@@ -52,21 +60,64 @@ def main():
             print("Error: connection failed to " + gridpoints_url + "\nRetrying...")
             sleep(2)
     gridpoints_json = json.loads(gridpoints_response.read())
-    #print(gridpoints_json)
+
 
     periods = []
-    
     for p in gridpoints_json["properties"]["periods"]:
         period = Period(p["number"],p["name"],p["startTime"],p["temperature"],p["shortForecast"])
         periods.append(period)
 
-    #for i in periods:
-    #    print(i.name + i.startTime + str(i.temperature) + i.shortForecast)
 
     textfile = open(coordinates + ".txt", "w")
     for p in periods:
-        textfile.write(p.name + "\n" + p.startTime + "\n" + str(p.temperature) + "\u00B0F\n" + p.shortForecast + "\n\n")
+        formatted_temp = str(p.temperature) + "\u00B0F\n"
+        formatted_date = format_date(p.startTime)
+        textfile.write(p.name + "\n" + formatted_date + "\n" + formatted_temp + p.shortForecast + "\n\n")
     textfile.close()
+
+
+    with open(coordinates + ".txt", "r") as file:
+        lines = file.read().splitlines()
+
+    html_content = """
+    <html>
+    <head>
+    <title>Forecast</title>
+    <style>
+        table {
+            font-family: arial, sans-serif;
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+    </style>
+    </head>
+    <body>
+    <table>
+    """
+
+    html_content += "<tr>\n"
+    for line in lines:
+        if line.strip() == "":
+            html_content += "</tr>\n<tr>\n"
+        else:
+            html_content += f"<td>{line.strip()}</td>\n"
+    html_content += "</tr>\n"
+
+    html_content += "</table>\n</body>\n</html>"
+
+    with open(coordinates + ".html", "w") as file:
+        file.write(html_content)
 
 if __name__ == "__main__":
     main()
