@@ -5,11 +5,6 @@
 # forecast from the NWS weather.gov API   #
 # for the given latitude and longitude    #
 # # # # # # # # # # # # # # # # # # # # # #
-# TODO:
-# -
-# Create YAML file of conda env
-# Write detailed README for github
-# Submit github repo link to moodle
 
 from urllib.request import urlopen, Request
 from datetime import datetime
