@@ -1,0 +1,4 @@
+name: WeatherApp
+channels:
+  - defaults
+prefix: C:\Users\evanb\miniconda3\envs\WeatherApp
