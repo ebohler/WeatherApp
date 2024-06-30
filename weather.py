@@ -6,7 +6,6 @@
 # for the given latitude and longitude    #
 # # # # # # # # # # # # # # # # # # # # # #
 # TODO:
-# Put everything in classes and functions
 # -
 # Create YAML file of conda env
 # Write detailed README for github
@@ -18,10 +17,49 @@ from time import sleep
 import json, sys
 
 class WeatherApp:
-    pass
+    def coords_input(self):
+        print("Enter the latitude and longitude of a place in the US to receive the forecast")
+        latitude = input("Latitude: ")
+        longitude = input("Longitude: ")
+        coords = latitude + "," + longitude
+        return coords
 
-class Forecast:
-    pass
+class JSONParser:
+    def __init__(self, coordinates):
+        self.coordinates = coordinates
+
+    def get_points_json(self):
+        points_url = "https://api.weather.gov/points/" + self.coordinates
+        for i in range (3):
+            try:
+                points_response = urlopen(Request(points_url, headers={'User-Agent': 'Mozilla'}))
+            except:
+                print ("Error: could not connect to " + points_url)
+                if i == 2:
+                    sys.exit("Connection failed after 3 retries. Ending process...")
+                sleep(2)
+        points_json = json.loads(points_response.read())
+        return points_json
+    
+    def get_gridpoints_json(self, points_json):
+        gridpoints_url = points_json["properties"]["forecast"]
+        for i in range (3):
+            try:
+                gridpoints_response = urlopen(Request(gridpoints_url, headers={'User-Agent': 'Mozilla'}))
+            except:
+                print("Error: could not connect to " + gridpoints_url + "\n")
+                if i == 2:
+                    sys.exit("Connection failed after 3 retries. Ending process...")
+                sleep(2)
+        gridpoints_json = json.loads(gridpoints_response.read())
+        return gridpoints_json
+    
+    def create_periods_list(gridpoints_json):
+        periods = []
+        for p in gridpoints_json["properties"]["periods"]:
+            period = Period(p["number"],p["name"],p["startTime"],p["temperature"],p["shortForecast"])
+            periods.append(period)
+        return periods
 
 class Period:
     def __init__(self, number, name, startTime, temperature, shortForecast):
@@ -135,48 +173,15 @@ class HTMLTable:
 
             file.write("</tr>\n</table>\n</body>\n</html>")
 
-# FIXME: Put inside class
-def coords_input():
-    print("Enter the latitude and longitude of a place in the US to receive the forecast")
-    latitude = input("Latitude: ")
-    longitude = input("Longitude: ")
-    coords = latitude + "," + longitude
-    return coords
-
 def main():
     print("Weather App by ebohler")
-    coordinates = coords_input()
+    
+    weather = WeatherApp()
+    coordinates = weather.coords_input()
 
-
-    points_url = "https://api.weather.gov/points/" + coordinates
-    for i in range (3):
-        try:
-            points_response = urlopen(Request(points_url, headers={'User-Agent': 'Mozilla'}))
-        except:
-            print ("Error: could not connect to " + points_url)
-            if i == 2:
-                sys.exit("Connection failed after 3 retries. Ending process...")
-            sleep(2)
-    points_json = json.loads(points_response.read())
-
-
-    gridpoints_url = points_json["properties"]["forecast"]
-    for i in range (3):
-        try:
-            gridpoints_response = urlopen(Request(gridpoints_url, headers={'User-Agent': 'Mozilla'}))
-        except:
-            print("Error: could not connect to " + gridpoints_url + "\n")
-            if i == 2:
-                sys.exit("Connection failed after 3 retries. Ending process...")
-            sleep(2)
-    gridpoints_json = json.loads(gridpoints_response.read())
-
-
-    periods = []
-    for p in gridpoints_json["properties"]["periods"]:
-        period = Period(p["number"],p["name"],p["startTime"],p["temperature"],p["shortForecast"])
-        periods.append(period)
-
+    json = JSONParser(coordinates)
+    gridpoints_json = json.get_gridpoints_json(json.get_points_json())
+    periods = JSONParser.create_periods_list(gridpoints_json)
 
     text = TextFile(coordinates)
     text.write_file(periods)
