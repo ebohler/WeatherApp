@@ -21,7 +21,13 @@ from datetime import datetime
 from time import sleep
 import json
 
-class Period:
+class WeatherApp:
+    pass
+
+class Forecast:
+    pass
+
+class Period(Forecast):
     def __init__(self, number, name, startTime, temperature, shortForecast):
         self.number = number
         self.name = name
@@ -31,7 +37,7 @@ class Period:
 
 def format_date(input_date):
     dt = datetime.fromisoformat(input_date)
-    formatted_date = dt.strftime('%B %d, %Y %I:%M %p')
+    formatted_date = dt.strftime('%B %d, %Y\n%I:%M %p')
     return formatted_date
 
 def main():
@@ -84,21 +90,52 @@ def main():
     <head>
     <title>Forecast</title>
     <style>
+        body {
+            background: rgb(34,143,195);
+            background: linear-gradient(0deg, rgba(34,143,195,1) 0%, rgba(240,255,255,1) 100%); 
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            padding: 12px;  
+        }    
         table {
-            font-family: arial, sans-serif;
-            width: 100%;
-            border-collapse: collapse;
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            margin: 50px auto;
+            overflow: hidden;
+            border: 1px solid #ddd;
+            border-collapse: separate;
+            border-left: 0;
+            border-radius: 4px;
+            border-spacing: 0px;
         }
-        th, td {
-            border: 1px solid black;
-            padding: 8px;
-            text-align: left;
+        thead {
+            display: table-header-group;
+            vertical-align: middle;
+            border-color: inherit;
+            border-collapse: separate;
         }
-        th {
-            background-color: #f2f2f2;
+        tr {
+            display: table-row;
+            vertical-align: inherit;
+            border-color: inherit;
+        }
+        td {
+            border-top: 1px solid #ddd;   
+            padding: 24px 12px 24px 12px; 
+            text-align: center;
+            vertical-align: top;
+            border-left: 1px solid #ddd;  
+        }
+        thead:first-child tr:first-child th:first-child, tbody:first-child tr:first-child td:first-child {
+            border-radius: 4px 0 0 0;
+        }
+        thead:last-child tr:last-child th:first-child, tbody:last-child tr:last-child td:first-child {
+            border-radius: 0 0 0 4px;
         }
         tr:nth-child(even) {
             background-color: #f9f9f9;
+        }
+        tr:nth-child(odd) {
+            background-color: #f2f2f2;
         }
     </style>
     </head>
